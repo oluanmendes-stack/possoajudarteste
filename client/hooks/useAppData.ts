@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // Inicializar cliente Supabase
-const supabase = createClient(
-  'https://qhtzxqlnuubuvxnmwhax.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodHp4cWxudXVidXZ4bm13aGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5ODc5NzUsImV4cCI6MjA4NTU2Mzk3NX0.y8n4kjhup_q3oxd7S-UV3opGHTprMHzj2M9ey32MK1o'
-);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://laxgdxrcamczkyqevimh.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxheGdkeHJjYW1jemt5cWV2aW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjgzMjQsImV4cCI6MjA4NjIwNDMyNH0.OcExIFr3fOnqzuL3JkNH5WbrskyCTopo7VRSVLDl6pU';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface User {
   id: string;
@@ -111,6 +111,18 @@ export function useAppData() {
         if (loadedDonations) setDonations(JSON.parse(loadedDonations));
         if (loadedPeriodos) setPeriodos(JSON.parse(loadedPeriodos));
 
+        // Inicializar produtos padrão se não existirem
+        if (!loadedProducts) {
+          const produtosPadrao: Product[] = [
+            { id: "1", nome: "Água (500ml)", preço: 2.0 },
+            { id: "2", nome: "Café", preço: 1.5 },
+            { id: "3", nome: "Suco", preço: 3.0 },
+            { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
+          ];
+          setProducts(produtosPadrao);
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
+        }
+
         // Buscar dados do Supabase com fallback para localStorage
         const fetchWithFallback = async () => {
           // Buscar usuários
@@ -125,7 +137,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar usuários:', erro);
           }
 
           // Buscar produtos
@@ -138,35 +150,9 @@ export function useAppData() {
             if (!produtosError && produtosData && produtosData.length > 0) {
               setProducts(produtosData as Product[]);
               localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosData));
-            } else {
-              // Inicializar produtos padrão se vazio
-              const produtosPadrao: Product[] = [
-                { id: "1", nome: "Água (500ml)", preço: 2.0 },
-                { id: "2", nome: "Café", preço: 1.5 },
-                { id: "3", nome: "Suco", preço: 3.0 },
-                { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
-              ];
-
-              // Tentar criar produtos padrão no banco de dados
-              for (const produto of produtosPadrao) {
-                try {
-                  await supabase
-                    .from('products')
-                    .insert([{
-                      id: produto.id,
-                      nome: produto.nome,
-                      preço: produto.preço,
-                    }]);
-                } catch (erro) {
-                  // Silenciar erro
-                }
-              }
-
-              setProducts(produtosPadrao);
-              localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar produtos:', erro);
           }
 
           // Buscar vendas
@@ -181,7 +167,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(vendasData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar vendas:', erro);
           }
 
           // Buscar doações
@@ -196,7 +182,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(doacoesData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar doações:', erro);
           }
 
           // Buscar períodos
@@ -211,17 +197,17 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(periodosData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar períodos:', erro);
           }
         };
 
-        // Executar fetch sem bloquear se falhar
-        fetchWithFallback().catch(() => {
-          // Silenciar erros - dados já carregados do localStorage
+        // Executar fetch em background sem bloquear o carregamento da app
+        setLoading(false);
+        fetchWithFallback().catch((err) => {
+          console.warn('Erro na busca de dados:', err);
         });
       } catch (error) {
         console.error('Initialization error:', error);
-      } finally {
         setLoading(false);
       }
     };
@@ -322,8 +308,8 @@ export function useAppData() {
         emailInstitucional: dadosUsuario.emailInstitucional,
         meta: 100,
         metaAtingida: 0,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       if (dadosUsuario.emailPessoal) insertData.emailPessoal = dadosUsuario.emailPessoal;
@@ -382,7 +368,7 @@ export function useAppData() {
           meta: usuarioAtualizado.meta,
           metaAtingida: usuarioAtualizado.metaAtingida,
           is_admin: usuarioAtualizado.is_admin || false,
-          atualizadoem: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .eq('id', usuarioAtualizado.id);
 
@@ -418,7 +404,7 @@ export function useAppData() {
         .from('users')
         .update({
           is_admin: true,
-          atualizadoem: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .eq('id', currentUser.id);
 
@@ -538,21 +524,21 @@ export function useAppData() {
       // Build insert object with only defined fields
       const insertData: any = {
         id,
-        user_id: currentUser.id,
-        produto_id: productId,
+        userId: currentUser.id,
+        productId: productId,
         quantidade,
         data: agora,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       // Only add optional fields if they are defined
       if (details?.local) insertData.local = details.local;
       if (details?.pagamento) insertData.pagamento = details.pagamento;
       if (details?.parcelas) insertData.parcelas = details.parcelas;
-      if (details?.nomeComprador) insertData.nome_comprador = details.nomeComprador;
-      if (details?.telefoneComprador) insertData.telefone_comprador = details.telefoneComprador;
-      if (details?.emailComprador) insertData.email_comprador = details.emailComprador;
+      if (details?.nomeComprador) insertData.nomeComprador = details.nomeComprador;
+      if (details?.telefoneComprador) insertData.telefoneComprador = details.telefoneComprador;
+      if (details?.emailComprador) insertData.emailComprador = details.emailComprador;
 
       const { error } = await supabase
         .from('sales')
@@ -658,17 +644,17 @@ export function useAppData() {
       // Build insert object with only defined fields
       const insertData: any = {
         id,
-        user_id: currentUser.id,
+        userId: currentUser.id,
         tipo,
         valor,
         data: agora,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       // Only add optional fields if they are defined
-      if (nomeDiador) insertData.nome_diador = nomeDiador;
-      if (telefoneDiador) insertData.telefone_diador = telefoneDiador;
+      if (nomeDiador) insertData.nomeDiador = nomeDiador;
+      if (telefoneDiador) insertData.telefoneDiador = telefoneDiador;
       if (parcelas) insertData.parcelas = parcelas;
 
       const { error } = await supabase
@@ -720,8 +706,8 @@ export function useAppData() {
         data_inicio,
         data_fim,
         ativo: false,
-        criado_em: agora,
-        atualizado_em: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       if (descricao) insertData.descricao = descricao;
@@ -769,7 +755,7 @@ export function useAppData() {
       // Desativar todos os períodos
       const { error: desativarError } = await supabase
         .from('periodos')
-        .update({ ativo: false, atualizado_em: new Date().toISOString() })
+        .update({ ativo: false, updatedAt: new Date().toISOString() })
         .eq('ativo', true);
 
       if (desativarError) throw desativarError;
@@ -777,7 +763,7 @@ export function useAppData() {
       // Ativar o período selecionado
       const { error: ativarError } = await supabase
         .from('periodos')
-        .update({ ativo: true, atualizado_em: new Date().toISOString() })
+        .update({ ativo: true, updatedAt: new Date().toISOString() })
         .eq('id', idPeriodo);
 
       if (ativarError) throw ativarError;
