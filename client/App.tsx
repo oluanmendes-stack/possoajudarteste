@@ -20,6 +20,7 @@ import ControleGratificacao from "./pages/ControleGratificacao";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import AdminSetup from "./pages/AdminSetup";
 import PromoteToAdmin from "./pages/PromoteToAdmin";
+import CadastrarPeriodo from "./pages/CadastrarPeriodo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/relatorio" element={<Relatorio />} />
             <Route path="/controle-gratificacao" element={<ControleGratificacao />} />
             <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+            <Route path="/cadastrar-periodo" element={<CadastrarPeriodo />} />
             {/* ADICIONE TODAS AS ROTAS CUSTOMIZADAS ACIMA DA ROTA CATCH-ALL "*" */}
             <Route path="*" element={<NotFound />} />
           </Routes>

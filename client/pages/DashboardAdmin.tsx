@@ -5,11 +5,11 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { triggerConfetti } from "@/utils/confetti";
-import { Calendar, TrendingUp } from "lucide-react";
+import { Calendar, TrendingUp, Settings } from "lucide-react";
 
 export default function DashboardAdmin() {
   const navigate = useNavigate();
-  const { currentUser, users, sales } = useApp();
+  const { currentUser, users, sales, getPeriodoAtivo } = useApp();
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -20,6 +20,15 @@ export default function DashboardAdmin() {
       navigate("/dashboard");
     }
   }, [currentUser, navigate]);
+
+  // Usar período ativo automaticamente se disponível
+  useEffect(() => {
+    const periodAtivo = getPeriodoAtivo();
+    if (periodAtivo) {
+      setStartDate(new Date(periodAtivo.data_inicio));
+      setEndDate(new Date(periodAtivo.data_fim));
+    }
+  }, []);
 
   const handlePeriodChange = (days: number) => {
     const today = new Date();
@@ -78,6 +87,11 @@ export default function DashboardAdmin() {
     return `${startDate.toLocaleDateString("pt-BR", options)} - ${endDate.toLocaleDateString("pt-BR", options)}`;
   };
 
+  const periodAtivo = getPeriodoAtivo();
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100">
       <Sidebar />
@@ -85,12 +99,40 @@ export default function DashboardAdmin() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-teal-200">
         <div className="max-w-6xl mx-auto px-4 py-6 pl-20">
-          <h1 className="text-3xl font-bold text-teal-900">Dashboard Administrativo</h1>
-          <p className="text-teal-600 mt-1">
-            Acompanhamento geral de todas as voluntárias
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-teal-900">Dashboard Administrativo</h1>
+              <p className="text-teal-600 mt-1">
+                Acompanhamento geral de todas as voluntárias
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate("/cadastrar-periodo")}
+              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2"
+            >
+              <Settings size={18} />
+              Gerenciar Períodos
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Período Ativo */}
+      {periodAtivo && (
+        <div className="bg-yellow-50 border-b-2 border-yellow-200">
+          <div className="max-w-6xl mx-auto px-4 py-4 pl-20">
+            <div className="flex items-center gap-4">
+              <span className="text-2xl">⭐</span>
+              <div>
+                <p className="font-semibold text-yellow-900">Período Ativo: {periodAtivo.nome}</p>
+                <p className="text-sm text-yellow-700">
+                  {formatDate(periodAtivo.data_inicio)} a {formatDate(periodAtivo.data_fim)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-8 pl-20">

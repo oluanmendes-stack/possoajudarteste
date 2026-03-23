@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, Plus, Home, LogOut, TrendingUp, BarChart3, CreditCard, FileText, Gift, Shield } from "lucide-react";
+import { Menu, X, User, Plus, Home, LogOut, TrendingUp, BarChart3, CreditCard, FileText, Gift, Shield, Settings } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { Logo } from "./Logo";
 
@@ -131,14 +131,24 @@ export function Sidebar() {
             </Link>
 
             {currentUser?.is_admin && (
-              <Link
-                to="/dashboard-admin"
-                className="flex items-center gap-3 px-4 py-3 text-purple-900 hover:bg-purple-50 rounded-lg transition-colors border-l-4 border-purple-600 bg-purple-50"
-                onClick={() => setIsOpen(false)}
-              >
-                <Shield size={20} />
-                <span>Dashboard Admin</span>
-              </Link>
+              <>
+                <Link
+                  to="/dashboard-admin"
+                  className="flex items-center gap-3 px-4 py-3 text-purple-900 hover:bg-purple-50 rounded-lg transition-colors border-l-4 border-purple-600 bg-purple-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Shield size={20} />
+                  <span>Dashboard Admin</span>
+                </Link>
+                <Link
+                  to="/cadastrar-periodo"
+                  className="flex items-center gap-3 px-4 py-3 text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Plus size={20} />
+                  <span>Cadastrar Período</span>
+                </Link>
+              </>
             )}
           </nav>
 
