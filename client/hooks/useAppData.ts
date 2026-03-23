@@ -128,7 +128,7 @@ export function useAppData() {
           // Buscar usuários
           try {
             const { data: usuariosData, error: usuariosError } = await supabase
-              .from('users')
+              .from('usuarios')
               .select('*')
               .order('nomeCompleto', { ascending: true });
 
@@ -229,7 +229,7 @@ export function useAppData() {
       // Tentar Supabase primeiro
       try {
         const { data: usuariosData, error } = await supabase
-          .from('users')
+          .from('usuarios')
           .select('*')
           .eq('matricula', matricula);
 
@@ -321,7 +321,7 @@ export function useAppData() {
       // Tentar salvar no Supabase, mas não falhar se não conseguir
       try {
         await supabase
-          .from('users')
+          .from('usuarios')
           .insert([insertData]);
       } catch (supabaseError) {
         // Continuar mesmo se Supabase falhar - usar localStorage
@@ -358,7 +358,7 @@ export function useAppData() {
   const updateUser = async (usuarioAtualizado: User) => {
     try {
       const { error } = await supabase
-        .from('users')
+        .from('usuarios')
         .update({
           apelido: usuarioAtualizado.apelido,
           emailPessoal: usuarioAtualizado.emailPessoal,
@@ -401,7 +401,7 @@ export function useAppData() {
       };
 
       const { error } = await supabase
-        .from('users')
+        .from('usuarios')
         .update({
           is_admin: true,
           updatedAt: new Date().toISOString(),
