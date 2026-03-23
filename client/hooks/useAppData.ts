@@ -111,6 +111,18 @@ export function useAppData() {
         if (loadedDonations) setDonations(JSON.parse(loadedDonations));
         if (loadedPeriodos) setPeriodos(JSON.parse(loadedPeriodos));
 
+        // Inicializar produtos padrão se não existirem
+        if (!loadedProducts) {
+          const produtosPadrao: Product[] = [
+            { id: "1", nome: "Água (500ml)", preço: 2.0 },
+            { id: "2", nome: "Café", preço: 1.5 },
+            { id: "3", nome: "Suco", preço: 3.0 },
+            { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
+          ];
+          setProducts(produtosPadrao);
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
+        }
+
         // Buscar dados do Supabase com fallback para localStorage
         const fetchWithFallback = async () => {
           // Buscar usuários
@@ -125,7 +137,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar usuários:', erro);
           }
 
           // Buscar produtos
@@ -138,35 +150,9 @@ export function useAppData() {
             if (!produtosError && produtosData && produtosData.length > 0) {
               setProducts(produtosData as Product[]);
               localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosData));
-            } else {
-              // Inicializar produtos padrão se vazio
-              const produtosPadrao: Product[] = [
-                { id: "1", nome: "Água (500ml)", preço: 2.0 },
-                { id: "2", nome: "Café", preço: 1.5 },
-                { id: "3", nome: "Suco", preço: 3.0 },
-                { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
-              ];
-
-              // Tentar criar produtos padrão no banco de dados
-              for (const produto of produtosPadrao) {
-                try {
-                  await supabase
-                    .from('products')
-                    .insert([{
-                      id: produto.id,
-                      nome: produto.nome,
-                      preço: produto.preço,
-                    }]);
-                } catch (erro) {
-                  // Silenciar erro
-                }
-              }
-
-              setProducts(produtosPadrao);
-              localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar produtos:', erro);
           }
 
           // Buscar vendas
@@ -181,7 +167,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(vendasData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar vendas:', erro);
           }
 
           // Buscar doações
@@ -196,7 +182,7 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(doacoesData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar doações:', erro);
           }
 
           // Buscar períodos
@@ -211,17 +197,17 @@ export function useAppData() {
               localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(periodosData));
             }
           } catch (erro) {
-            // Silenciar erros de conexão - usar localStorage
+            console.warn('Aviso ao buscar períodos:', erro);
           }
         };
 
-        // Executar fetch sem bloquear se falhar
-        fetchWithFallback().catch(() => {
-          // Silenciar erros - dados já carregados do localStorage
+        // Executar fetch em background sem bloquear o carregamento da app
+        setLoading(false);
+        fetchWithFallback().catch((err) => {
+          console.warn('Erro na busca de dados:', err);
         });
       } catch (error) {
         console.error('Initialization error:', error);
-      } finally {
         setLoading(false);
       }
     };
