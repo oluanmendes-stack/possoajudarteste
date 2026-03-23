@@ -308,8 +308,8 @@ export function useAppData() {
         emailInstitucional: dadosUsuario.emailInstitucional,
         meta: 100,
         metaAtingida: 0,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       if (dadosUsuario.emailPessoal) insertData.emailPessoal = dadosUsuario.emailPessoal;
@@ -368,7 +368,7 @@ export function useAppData() {
           meta: usuarioAtualizado.meta,
           metaAtingida: usuarioAtualizado.metaAtingida,
           is_admin: usuarioAtualizado.is_admin || false,
-          atualizadoem: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .eq('id', usuarioAtualizado.id);
 
@@ -404,7 +404,7 @@ export function useAppData() {
         .from('users')
         .update({
           is_admin: true,
-          atualizadoem: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .eq('id', currentUser.id);
 
@@ -524,21 +524,21 @@ export function useAppData() {
       // Build insert object with only defined fields
       const insertData: any = {
         id,
-        user_id: currentUser.id,
-        produto_id: productId,
+        userId: currentUser.id,
+        productId: productId,
         quantidade,
         data: agora,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       // Only add optional fields if they are defined
       if (details?.local) insertData.local = details.local;
       if (details?.pagamento) insertData.pagamento = details.pagamento;
       if (details?.parcelas) insertData.parcelas = details.parcelas;
-      if (details?.nomeComprador) insertData.nome_comprador = details.nomeComprador;
-      if (details?.telefoneComprador) insertData.telefone_comprador = details.telefoneComprador;
-      if (details?.emailComprador) insertData.email_comprador = details.emailComprador;
+      if (details?.nomeComprador) insertData.nomeComprador = details.nomeComprador;
+      if (details?.telefoneComprador) insertData.telefoneComprador = details.telefoneComprador;
+      if (details?.emailComprador) insertData.emailComprador = details.emailComprador;
 
       const { error } = await supabase
         .from('sales')
@@ -644,17 +644,17 @@ export function useAppData() {
       // Build insert object with only defined fields
       const insertData: any = {
         id,
-        user_id: currentUser.id,
+        userId: currentUser.id,
         tipo,
         valor,
         data: agora,
-        criadoem: agora,
-        atualizadoem: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       // Only add optional fields if they are defined
-      if (nomeDiador) insertData.nome_diador = nomeDiador;
-      if (telefoneDiador) insertData.telefone_diador = telefoneDiador;
+      if (nomeDiador) insertData.nomeDiador = nomeDiador;
+      if (telefoneDiador) insertData.telefoneDiador = telefoneDiador;
       if (parcelas) insertData.parcelas = parcelas;
 
       const { error } = await supabase
@@ -706,8 +706,8 @@ export function useAppData() {
         data_inicio,
         data_fim,
         ativo: false,
-        criado_em: agora,
-        atualizado_em: agora,
+        createdAt: agora,
+        updatedAt: agora,
       };
 
       if (descricao) insertData.descricao = descricao;
@@ -755,7 +755,7 @@ export function useAppData() {
       // Desativar todos os períodos
       const { error: desativarError } = await supabase
         .from('periodos')
-        .update({ ativo: false, atualizado_em: new Date().toISOString() })
+        .update({ ativo: false, updatedAt: new Date().toISOString() })
         .eq('ativo', true);
 
       if (desativarError) throw desativarError;
@@ -763,7 +763,7 @@ export function useAppData() {
       // Ativar o período selecionado
       const { error: ativarError } = await supabase
         .from('periodos')
-        .update({ ativo: true, atualizado_em: new Date().toISOString() })
+        .update({ ativo: true, updatedAt: new Date().toISOString() })
         .eq('id', idPeriodo);
 
       if (ativarError) throw ativarError;
