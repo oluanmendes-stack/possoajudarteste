@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/api/*",
+    "/assets/*",
+    "/*.js",
+    "/*.css",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.ico",
+    "/*.webmanifest",
+    "/favicon.ico"
+  ],
+  "rules": [
+    {
+      "include": ["/api/*"],
+      "method": ["POST", "GET", "PUT", "DELETE", "OPTIONS"],
+      "route": "/"
+    }
+  ]
+}
