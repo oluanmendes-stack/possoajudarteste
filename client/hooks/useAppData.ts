@@ -113,113 +113,112 @@ export function useAppData() {
 
         // Buscar dados do Supabase com fallback para localStorage
         const fetchWithFallback = async () => {
+          // Buscar usuários
           try {
-            // Buscar usuários
-            try {
-              const { data: usuariosData, error: usuariosError } = await supabase
-                .from('users')
-                .select('*')
-                .order('nomeCompleto', { ascending: true });
+            const { data: usuariosData, error: usuariosError } = await supabase
+              .from('users')
+              .select('*')
+              .order('nomeCompleto', { ascending: true });
 
-              if (!usuariosError && usuariosData && usuariosData.length > 0) {
-                setUsers(usuariosData as User[]);
-                localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosData));
-              }
-            } catch (erro) {
-              console.debug('Erro ao buscar usuários:', erro);
-            }
-
-            // Buscar produtos
-            try {
-              const { data: produtosData, error: produtosError } = await supabase
-                .from('products')
-                .select('*')
-                .order('nome', { ascending: true });
-
-              if (!produtosError && produtosData && produtosData.length > 0) {
-                setProducts(produtosData as Product[]);
-                localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosData));
-              } else {
-                // Inicializar produtos padrão se vazio
-                const produtosPadrao: Product[] = [
-                  { id: "1", nome: "Água (500ml)", preço: 2.0 },
-                  { id: "2", nome: "Café", preço: 1.5 },
-                  { id: "3", nome: "Suco", preço: 3.0 },
-                  { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
-                ];
-
-                // Tentar criar produtos padrão no banco de dados
-                for (const produto of produtosPadrao) {
-                  try {
-                    await supabase
-                      .from('products')
-                      .insert([{
-                        id: produto.id,
-                        nome: produto.nome,
-                        preço: produto.preço,
-                      }]);
-                  } catch (erro) {
-                    console.debug('Erro ao criar produto padrão:', erro);
-                  }
-                }
-
-                setProducts(produtosPadrao);
-                localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
-              }
-            } catch (erro) {
-              console.debug('Erro ao buscar produtos:', erro);
-            }
-
-            // Buscar vendas
-            try {
-              const { data: vendasData, error: vendasError } = await supabase
-                .from('sales')
-                .select('*')
-                .order('data', { ascending: false });
-
-              if (!vendasError && vendasData) {
-                setSales(vendasData as Sale[]);
-                localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(vendasData));
-              }
-            } catch (erro) {
-              console.debug('Erro ao buscar vendas:', erro);
-            }
-
-            // Buscar doações
-            try {
-              const { data: doacoesData, error: doacoesError } = await supabase
-                .from('donations')
-                .select('*')
-                .order('data', { ascending: false });
-
-              if (!doacoesError && doacoesData) {
-                setDonations(doacoesData as Donation[]);
-                localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(doacoesData));
-              }
-            } catch (erro) {
-              console.debug('Erro ao buscar doações:', erro);
-            }
-
-            // Buscar períodos
-            try {
-              const { data: periodosData, error: periodosError } = await supabase
-                .from('periodos')
-                .select('*')
-                .order('data_inicio', { ascending: false });
-
-              if (!periodosError && periodosData) {
-                setPeriodos(periodosData as Periodo[]);
-                localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(periodosData));
-              }
-            } catch (erro) {
-              console.debug('Erro ao buscar períodos:', erro);
+            if (!usuariosError && usuariosData && usuariosData.length > 0) {
+              setUsers(usuariosData as User[]);
+              localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosData));
             }
           } catch (erro) {
-            console.warn('⚠️ Falha ao conectar ao Supabase. Usando dados em cache do localStorage.', erro);
+            // Silenciar erros de conexão - usar localStorage
+          }
+
+          // Buscar produtos
+          try {
+            const { data: produtosData, error: produtosError } = await supabase
+              .from('products')
+              .select('*')
+              .order('nome', { ascending: true });
+
+            if (!produtosError && produtosData && produtosData.length > 0) {
+              setProducts(produtosData as Product[]);
+              localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosData));
+            } else {
+              // Inicializar produtos padrão se vazio
+              const produtosPadrao: Product[] = [
+                { id: "1", nome: "Água (500ml)", preço: 2.0 },
+                { id: "2", nome: "Café", preço: 1.5 },
+                { id: "3", nome: "Suco", preço: 3.0 },
+                { id: "4", nome: "Bracelete Hospital", preço: 5.0 },
+              ];
+
+              // Tentar criar produtos padrão no banco de dados
+              for (const produto of produtosPadrao) {
+                try {
+                  await supabase
+                    .from('products')
+                    .insert([{
+                      id: produto.id,
+                      nome: produto.nome,
+                      preço: produto.preço,
+                    }]);
+                } catch (erro) {
+                  // Silenciar erro
+                }
+              }
+
+              setProducts(produtosPadrao);
+              localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(produtosPadrao));
+            }
+          } catch (erro) {
+            // Silenciar erros de conexão - usar localStorage
+          }
+
+          // Buscar vendas
+          try {
+            const { data: vendasData, error: vendasError } = await supabase
+              .from('sales')
+              .select('*')
+              .order('data', { ascending: false });
+
+            if (!vendasError && vendasData) {
+              setSales(vendasData as Sale[]);
+              localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(vendasData));
+            }
+          } catch (erro) {
+            // Silenciar erros de conexão - usar localStorage
+          }
+
+          // Buscar doações
+          try {
+            const { data: doacoesData, error: doacoesError } = await supabase
+              .from('donations')
+              .select('*')
+              .order('data', { ascending: false });
+
+            if (!doacoesError && doacoesData) {
+              setDonations(doacoesData as Donation[]);
+              localStorage.setItem(STORAGE_KEYS.DONATIONS, JSON.stringify(doacoesData));
+            }
+          } catch (erro) {
+            // Silenciar erros de conexão - usar localStorage
+          }
+
+          // Buscar períodos
+          try {
+            const { data: periodosData, error: periodosError } = await supabase
+              .from('periodos')
+              .select('*')
+              .order('data_inicio', { ascending: false });
+
+            if (!periodosError && periodosData) {
+              setPeriodos(periodosData as Periodo[]);
+              localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(periodosData));
+            }
+          } catch (erro) {
+            // Silenciar erros de conexão - usar localStorage
           }
         };
 
-        fetchWithFallback();
+        // Executar fetch sem bloquear se falhar
+        fetchWithFallback().catch(() => {
+          // Silenciar erros - dados já carregados do localStorage
+        });
       } catch (error) {
         console.error('Initialization error:', error);
       } finally {
@@ -241,28 +240,58 @@ export function useAppData() {
     senha: string
   ): Promise<{ success: boolean; error: string | null }> => {
     try {
-      const { data: usuariosData, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('matricula', matricula);
+      // Tentar Supabase primeiro
+      try {
+        const { data: usuariosData, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('matricula', matricula);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (!usuariosData || usuariosData.length === 0) {
-        return { success: false, error: 'Matrícula não encontrada' };
+        if (!usuariosData || usuariosData.length === 0) {
+          return { success: false, error: 'Matrícula não encontrada' };
+        }
+
+        const usuario = usuariosData[0];
+
+        // Validar senha: deve ser 11 dígitos correspondendo ao CPF
+        const cpfSemCaracteres = usuario.cpf.replace(/\D/g, '');
+        if (senha !== cpfSemCaracteres) {
+          return { success: false, error: 'Senha inválida' };
+        }
+
+        setCurrentUser(usuario);
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(usuario));
+        return { success: true, error: null };
+      } catch (supabaseError) {
+        // Fallback: buscar do localStorage
+        try {
+          const usuariosLocal = localStorage.getItem(STORAGE_KEYS.USERS);
+          if (!usuariosLocal) {
+            return { success: false, error: 'Nenhum usuário cadastrado' };
+          }
+
+          const usuariosData = JSON.parse(usuariosLocal) as User[];
+          const usuario = usuariosData.find((u) => u.matricula === matricula);
+
+          if (!usuario) {
+            return { success: false, error: 'Matrícula não encontrada' };
+          }
+
+          // Validar senha
+          const cpfSemCaracteres = usuario.cpf.replace(/\D/g, '');
+          if (senha !== cpfSemCaracteres) {
+            return { success: false, error: 'Senha inválida' };
+          }
+
+          setCurrentUser(usuario);
+          localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(usuario));
+          return { success: true, error: null };
+        } catch (localError) {
+          return { success: false, error: 'Erro ao fazer login. Verifique seus dados.' };
+        }
       }
-
-      const usuario = usuariosData[0];
-
-      // Validar senha: deve ser 11 dígitos correspondendo ao CPF
-      const cpfSemCaracteres = usuario.cpf.replace(/\D/g, '');
-      if (senha !== cpfSemCaracteres) {
-        return { success: false, error: 'Senha inválida' };
-      }
-
-      setCurrentUser(usuario);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(usuario));
-      return { success: true, error: null };
     } catch (erro: any) {
       return { success: false, error: erro.message || 'Erro ao fazer login' };
     }
@@ -303,11 +332,14 @@ export function useAppData() {
       if (dadosUsuario.foto) insertData.foto = dadosUsuario.foto;
       if (dadosUsuario.is_admin) insertData.is_admin = dadosUsuario.is_admin;
 
-      const { error } = await supabase
-        .from('users')
-        .insert([insertData]);
-
-      if (error) throw error;
+      // Tentar salvar no Supabase, mas não falhar se não conseguir
+      try {
+        await supabase
+          .from('users')
+          .insert([insertData]);
+      } catch (supabaseError) {
+        // Continuar mesmo se Supabase falhar - usar localStorage
+      }
 
       const novosUsuarios = [...users, novoUsuario];
       setUsers(novosUsuarios);
