@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // Inicializar cliente Supabase
-const supabase = createClient(
-  'https://qhtzxqlnuubuvxnmwhax.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodHp4cWxudXVidXZ4bm13aGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5ODc5NzUsImV4cCI6MjA4NTU2Mzk3NX0.y8n4kjhup_q3oxd7S-UV3opGHTprMHzj2M9ey32MK1o'
-);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://laxgdxrcamczkyqevimh.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxheGdkeHJjYW1jemt5cWV2aW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjgzMjQsImV4cCI6MjA4NjIwNDMyNH0.OcExIFr3fOnqzuL3JkNH5WbrskyCTopo7VRSVLDl6pU';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface User {
   id: string;
