@@ -10,7 +10,7 @@ type PeriodType = "7days" | "30days" | "90days" | "currentMonth" | "custom";
 
 export default function ControleGratificacao() {
   const navigate = useNavigate();
-  const { currentUser, products, getTotalSalesByProductInRange } = useApp();
+  const { currentUser, products, getTotalSalesByProductInRange, getPeriodoAtivo } = useApp();
   const [periodType, setPeriodType] = useState<PeriodType>("30days");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
@@ -22,6 +22,15 @@ export default function ControleGratificacao() {
       navigate("/");
     }
   }, [currentUser, navigate]);
+
+  // Usar período ativo automaticamente se disponível
+  useEffect(() => {
+    const periodAtivo = getPeriodoAtivo();
+    if (periodAtivo) {
+      setStartDate(new Date(periodAtivo.data_inicio));
+      setEndDate(new Date(periodAtivo.data_fim));
+    }
+  }, []);
 
   useEffect(() => {
     updateDateRange();

@@ -62,6 +62,17 @@ export interface Donation {
   telefoneDiador?: string;
 }
 
+export interface Periodo {
+  id: string;
+  nome: string;
+  data_inicio: string; // DATE format YYYY-MM-DD
+  data_fim: string; // DATE format YYYY-MM-DD
+  ativo: boolean;
+  descricao?: string;
+  criado_em?: string;
+  atualizado_em?: string;
+}
+
 // Chaves de armazenamento para fallback (quando offline)
 const STORAGE_KEYS = {
   CURRENT_USER: "posso_ajudar_current_user",
@@ -69,6 +80,7 @@ const STORAGE_KEYS = {
   PRODUCTS: "posso_ajudar_products",
   SALES: "posso_ajudar_sales",
   DONATIONS: "posso_ajudar_donations",
+  PERIODOS: "posso_ajudar_periodos",
 };
 
 export function useAppData() {
@@ -77,6 +89,7 @@ export function useAppData() {
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [periodos, setPeriodos] = useState<Periodo[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Initialize data from Supabase
@@ -89,12 +102,14 @@ export function useAppData() {
         const loadedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
         const loadedSales = localStorage.getItem(STORAGE_KEYS.SALES);
         const loadedDonations = localStorage.getItem(STORAGE_KEYS.DONATIONS);
+        const loadedPeriodos = localStorage.getItem(STORAGE_KEYS.PERIODOS);
 
         if (loadedUser) setCurrentUser(JSON.parse(loadedUser));
         if (loadedUsers) setUsers(JSON.parse(loadedUsers));
         if (loadedProducts) setProducts(JSON.parse(loadedProducts));
         if (loadedSales) setSales(JSON.parse(loadedSales));
         if (loadedDonations) setDonations(JSON.parse(loadedDonations));
+        if (loadedPeriodos) setPeriodos(JSON.parse(loadedPeriodos));
 
         // Buscar dados do Supabase com fallback para localStorage
         const fetchWithFallback = async () => {
@@ -183,6 +198,21 @@ export function useAppData() {
               }
             } catch (erro) {
               console.debug('Erro ao buscar doações:', erro);
+            }
+
+            // Buscar períodos
+            try {
+              const { data: periodosData, error: periodosError } = await supabase
+                .from('periodos')
+                .select('*')
+                .order('data_inicio', { ascending: false });
+
+              if (!periodosError && periodosData) {
+                setPeriodos(periodosData as Periodo[]);
+                localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(periodosData));
+              }
+            } catch (erro) {
+              console.debug('Erro ao buscar períodos:', erro);
             }
           } catch (erro) {
             console.warn('⚠️ Falha ao conectar ao Supabase. Usando dados em cache do localStorage.', erro);
@@ -630,6 +660,115 @@ export function useAppData() {
     return donations.filter((d) => d.userId === userId);
   };
 
+  // Criar novo período
+  const createPeriodo = async (
+    nome: string,
+    data_inicio: string,
+    data_fim: string,
+    descricao?: string
+  ): Promise<Periodo> => {
+    try {
+      const id = Date.now().toString();
+      const agora = new Date().toISOString();
+
+      const novoPeriodo: Periodo = {
+        id,
+        nome,
+        data_inicio,
+        data_fim,
+        ativo: false,
+        descricao,
+        criado_em: agora,
+        atualizado_em: agora,
+      };
+
+      const insertData: any = {
+        id,
+        nome,
+        data_inicio,
+        data_fim,
+        ativo: false,
+        criado_em: agora,
+        atualizado_em: agora,
+      };
+
+      if (descricao) insertData.descricao = descricao;
+
+      const { error } = await supabase
+        .from('periodos')
+        .insert([insertData]);
+
+      if (error) throw error;
+
+      const novosPeriodos = [...periodos, novoPeriodo];
+      setPeriodos(novosPeriodos);
+      localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(novosPeriodos));
+      return novoPeriodo;
+    } catch (erro: any) {
+      const errorMessage = erro?.message || JSON.stringify(erro);
+      console.error('Erro ao criar período:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Deletar período
+  const deletePeriodo = async (idPeriodo: string) => {
+    try {
+      const { error } = await supabase
+        .from('periodos')
+        .delete()
+        .eq('id', idPeriodo);
+
+      if (error) throw error;
+
+      const novosPeriodos = periodos.filter((p) => p.id !== idPeriodo);
+      setPeriodos(novosPeriodos);
+      localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(novosPeriodos));
+    } catch (erro: any) {
+      const errorMessage = erro?.message || JSON.stringify(erro);
+      console.error('Erro ao deletar período:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Marcar período como ativo
+  const setPeriodoAtivo = async (idPeriodo: string) => {
+    try {
+      // Desativar todos os períodos
+      const { error: desativarError } = await supabase
+        .from('periodos')
+        .update({ ativo: false, atualizado_em: new Date().toISOString() })
+        .eq('ativo', true);
+
+      if (desativarError) throw desativarError;
+
+      // Ativar o período selecionado
+      const { error: ativarError } = await supabase
+        .from('periodos')
+        .update({ ativo: true, atualizado_em: new Date().toISOString() })
+        .eq('id', idPeriodo);
+
+      if (ativarError) throw ativarError;
+
+      // Atualizar estado local
+      const novosPeriodos = periodos.map((p) => ({
+        ...p,
+        ativo: p.id === idPeriodo,
+      }));
+      setPeriodos(novosPeriodos);
+      localStorage.setItem(STORAGE_KEYS.PERIODOS, JSON.stringify(novosPeriodos));
+    } catch (erro: any) {
+      const errorMessage = erro?.message || JSON.stringify(erro);
+      console.error('Erro ao marcar período como ativo:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Obter período ativo
+  const getPeriodoAtivo = (): Periodo | undefined => {
+    return periodos.find((p) => p.ativo === true);
+  };
+
   return {
     loading,
     currentUser,
@@ -637,6 +776,7 @@ export function useAppData() {
     products,
     sales,
     donations,
+    periodos,
     login,
     loginAsync,
     logout,
@@ -648,6 +788,10 @@ export function useAppData() {
     deleteProduct,
     recordSale,
     recordDonation,
+    createPeriodo,
+    deletePeriodo,
+    setPeriodoAtivo,
+    getPeriodoAtivo,
     getSalesByUser,
     getSalesByMonth,
     getSalesByDateRange,
