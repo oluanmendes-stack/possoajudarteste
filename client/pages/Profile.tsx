@@ -90,10 +90,12 @@ export default function Profile() {
     (a, b) => a + b,
     0
   );
-  const progressPercentage = Math.min(
-    (currentUser.metaAtingida / currentUser.meta) * 100,
+  const metaAtingida = currentUser.metaAtingida ?? 0;
+  const meta = currentUser.meta ?? 100;
+  const progressPercentage = meta > 0 ? Math.min(
+    (metaAtingida / meta) * 100,
     100
-  );
+  ) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100">
@@ -372,7 +374,7 @@ export default function Profile() {
                   Progresso Mensal
                 </p>
                 <p className="text-2xl font-bold text-teal-600">
-                  {currentUser.metaAtingida}/{currentUser.meta}
+                  {metaAtingida}/{meta}
                 </p>
               </div>
 
@@ -392,7 +394,7 @@ export default function Profile() {
               <p className="mt-4 text-sm text-teal-700">
                 {progressPercentage >= 100
                   ? "🎉 Parabéns! Você atingiu sua meta!"
-                  : `Faltam ${currentUser.meta - currentUser.metaAtingida} itens para atingir sua meta`}
+                  : `Faltam ${meta - metaAtingida} itens para atingir sua meta`}
               </p>
             </div>
           </div>
