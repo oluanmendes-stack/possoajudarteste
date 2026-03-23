@@ -28,7 +28,7 @@ export function createServer() {
   // ============================================================================
 
   // LOGIN - POST /api/usuarios/login
-  app.post("/api/usuarios/login", (req: Request, res: Response) => {
+  app.post("/api/usuarios/login", async (req: Request, res: Response) => {
     try {
       const { matricula, senha } = req.body;
 
@@ -39,7 +39,7 @@ export function createServer() {
         });
       }
 
-      const usuario = db.getUserByMatricula(matricula);
+      const usuario = await db.getUserByMatricula(matricula);
 
       if (!usuario) {
         return res.status(401).json({
@@ -68,7 +68,7 @@ export function createServer() {
   });
 
   // REGISTRAR USUÁRIO - POST /api/usuarios/registrar
-  app.post("/api/usuarios/registrar", (req: Request, res: Response) => {
+  app.post("/api/usuarios/registrar", async (req: Request, res: Response) => {
     try {
       const {
         matricula,
@@ -96,7 +96,7 @@ export function createServer() {
       }
 
       // Verificar se usuário já existe
-      const existeMatricula = db.getUserByMatricula(matricula);
+      const existeMatricula = await db.getUserByMatricula(matricula);
       if (existeMatricula) {
         return res.status(409).json({
           sucesso: false,
@@ -104,7 +104,7 @@ export function createServer() {
         });
       }
 
-      const existeCpf = db.getUserByCpf(cpf);
+      const existeCpf = await db.getUserByCpf(cpf);
       if (existeCpf) {
         return res.status(409).json({
           sucesso: false,
@@ -112,7 +112,7 @@ export function createServer() {
         });
       }
 
-      const usuario = db.createUser({
+      const usuario = await db.createUser({
         matricula,
         cpf,
         nomeCompleto,
@@ -137,9 +137,9 @@ export function createServer() {
   });
 
   // LISTAR TODOS OS USUÁRIOS - GET /api/usuarios
-  app.get("/api/usuarios", (req: Request, res: Response) => {
+  app.get("/api/usuarios", async (req: Request, res: Response) => {
     try {
-      const usuarios = db.getAllUsers();
+      const usuarios = await db.getAllUsers();
       return res.status(200).json(usuarios);
     } catch (erro) {
       console.error("Erro ao listar usuários:", erro);
@@ -151,10 +151,10 @@ export function createServer() {
   });
 
   // OBTER USUÁRIO POR ID - GET /api/usuarios/:id
-  app.get("/api/usuarios/:id", (req: Request, res: Response) => {
+  app.get("/api/usuarios/:id", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const usuario = db.getUserById(id);
+      const usuario = await db.getUserById(id);
 
       if (!usuario) {
         return res.status(404).json({
@@ -174,12 +174,12 @@ export function createServer() {
   });
 
   // ATUALIZAR USUÁRIO - PUT /api/usuarios/:id
-  app.put("/api/usuarios/:id", (req: Request, res: Response) => {
+  app.put("/api/usuarios/:id", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { meta, metaAtingida } = req.body;
 
-      const usuario = db.updateUser(id, { meta, metaAtingida });
+      const usuario = await db.updateUser(id, { meta, metaAtingida });
 
       if (!usuario) {
         return res.status(404).json({
@@ -203,9 +203,9 @@ export function createServer() {
   // ============================================================================
 
   // LISTAR PRODUTOS - GET /api/produtos
-  app.get("/api/produtos", (req: Request, res: Response) => {
+  app.get("/api/produtos", async (req: Request, res: Response) => {
     try {
-      const produtos = db.getAllProducts();
+      const produtos = await db.getAllProducts();
       return res.status(200).json(produtos);
     } catch (erro) {
       console.error("Erro ao listar produtos:", erro);
@@ -217,7 +217,7 @@ export function createServer() {
   });
 
   // CRIAR PRODUTO - POST /api/produtos
-  app.post("/api/produtos", (req: Request, res: Response) => {
+  app.post("/api/produtos", async (req: Request, res: Response) => {
     try {
       const { nome, preco, imagem } = req.body;
 
@@ -228,7 +228,7 @@ export function createServer() {
         });
       }
 
-      const produto = db.createProduct({ nome, preco, imagem });
+      const produto = await db.createProduct({ nome, preco, imagem });
       return res.status(201).json(produto);
     } catch (erro) {
       console.error("Erro ao criar produto:", erro);
@@ -240,12 +240,12 @@ export function createServer() {
   });
 
   // ATUALIZAR PRODUTO - PUT /api/produtos/:id
-  app.put("/api/produtos/:id", (req: Request, res: Response) => {
+  app.put("/api/produtos/:id", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { nome, preco, imagem } = req.body;
 
-      const produto = db.updateProduct(id, { nome, preco, imagem });
+      const produto = await db.updateProduct(id, { nome, preco, imagem });
 
       if (!produto) {
         return res.status(404).json({
@@ -265,10 +265,10 @@ export function createServer() {
   });
 
   // DELETAR PRODUTO - DELETE /api/produtos/:id
-  app.delete("/api/produtos/:id", (req: Request, res: Response) => {
+  app.delete("/api/produtos/:id", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const deletado = db.deleteProduct(id);
+      const deletado = await db.deleteProduct(id);
 
       if (!deletado) {
         return res.status(404).json({
@@ -292,7 +292,7 @@ export function createServer() {
   // ============================================================================
 
   // REGISTRAR VENDA - POST /api/vendas
-  app.post("/api/vendas", (req: Request, res: Response) => {
+  app.post("/api/vendas", async (req: Request, res: Response) => {
     try {
       const { userId, productId, quantidade, local, pagamento, parcelas } =
         req.body;
@@ -304,7 +304,7 @@ export function createServer() {
         });
       }
 
-      const venda = db.createSale({
+      const venda = await db.createSale({
         userId,
         productId,
         quantidade,
@@ -325,9 +325,9 @@ export function createServer() {
   });
 
   // LISTAR VENDAS - GET /api/vendas
-  app.get("/api/vendas", (req: Request, res: Response) => {
+  app.get("/api/vendas", async (req: Request, res: Response) => {
     try {
-      const vendas = db.getAllSales();
+      const vendas = await db.getAllSales();
       return res.status(200).json(vendas);
     } catch (erro) {
       console.error("Erro ao listar vendas:", erro);
@@ -339,10 +339,10 @@ export function createServer() {
   });
 
   // VENDAS POR USUÁRIO - GET /api/vendas/usuario/:userId
-  app.get("/api/vendas/usuario/:userId", (req: Request, res: Response) => {
+  app.get("/api/vendas/usuario/:userId", async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      const vendas = db.getSalesByUserId(userId);
+      const vendas = await db.getSalesByUserId(userId);
       return res.status(200).json(vendas);
     } catch (erro) {
       console.error("Erro ao listar vendas:", erro);
@@ -358,7 +358,7 @@ export function createServer() {
   // ============================================================================
 
   // REGISTRAR DOAÇÃO - POST /api/doacoes
-  app.post("/api/doacoes", (req: Request, res: Response) => {
+  app.post("/api/doacoes", async (req: Request, res: Response) => {
     try {
       const { userId, tipo, valor, nomeDiador, telefoneDiador } = req.body;
 
@@ -369,7 +369,7 @@ export function createServer() {
         });
       }
 
-      const doacao = db.createDonation({
+      const doacao = await db.createDonation({
         userId,
         tipo,
         valor,
@@ -389,9 +389,9 @@ export function createServer() {
   });
 
   // LISTAR DOAÇÕES - GET /api/doacoes
-  app.get("/api/doacoes", (req: Request, res: Response) => {
+  app.get("/api/doacoes", async (req: Request, res: Response) => {
     try {
-      const doacoes = db.getAllDonations();
+      const doacoes = await db.getAllDonations();
       return res.status(200).json(doacoes);
     } catch (erro) {
       console.error("Erro ao listar doações:", erro);
@@ -403,10 +403,10 @@ export function createServer() {
   });
 
   // DOAÇÕES POR USUÁRIO - GET /api/doacoes/usuario/:userId
-  app.get("/api/doacoes/usuario/:userId", (req: Request, res: Response) => {
+  app.get("/api/doacoes/usuario/:userId", async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      const doacoes = db.getDonationsByUserId(userId);
+      const doacoes = await db.getDonationsByUserId(userId);
       return res.status(200).json(doacoes);
     } catch (erro) {
       console.error("Erro ao listar doações:", erro);
