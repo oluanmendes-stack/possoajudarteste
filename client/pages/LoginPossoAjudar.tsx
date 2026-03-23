@@ -87,6 +87,7 @@ export default function LoginPossoAjudar() {
               onChange={(e) => setSenha(e.target.value)}
               placeholder="Digite sua senha"
               maxLength={11}
+              autoComplete="current-password"
               className="w-full"
             />
             <p className="text-xs text-teal-700 mt-2">
