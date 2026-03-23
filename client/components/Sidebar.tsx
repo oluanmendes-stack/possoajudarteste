@@ -34,99 +34,99 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ${
+        className={`fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 pt-20">
+        <div className="p-6 pt-20 flex-1 flex flex-col overflow-hidden">
           {/* Logo Section */}
-          <div className="mb-6 flex items-center gap-3 pb-6 border-b border-teal-100">
-            <Logo size={48} />
+          <div className="mb-4 flex items-center gap-3 pb-4 border-b border-teal-100 flex-shrink-0">
+            <Logo size={40} />
             <div>
-              <h1 className="text-lg font-bold text-teal-900">Posso Ajudar</h1>
+              <h1 className="text-base font-bold text-teal-900">Posso Ajudar</h1>
               <p className="text-xs text-teal-600">Voluntária</p>
             </div>
           </div>
 
           {/* Welcome Section */}
-          <div className="mb-8 pb-6 border-b border-teal-100">
-            <p className="text-sm text-teal-600 font-medium">Bem-vindo,</p>
-            <h2 className="text-lg font-bold text-teal-900">
+          <div className="mb-4 pb-4 border-b border-teal-100 flex-shrink-0">
+            <p className="text-xs text-teal-600 font-medium">Bem-vindo,</p>
+            <h2 className="text-base font-bold text-teal-900">
               {currentUser?.apelido || "Voluntária"}
             </h2>
           </div>
 
           {/* Navigation */}
-          <nav className="space-y-4">
+          <nav className="space-y-2 flex-1 overflow-y-auto pr-2">
             <Link
               to="/dashboard"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Home size={20} />
+              <Home size={18} />
               <span>Início</span>
             </Link>
 
             <Link
               to="/lancar-vendas"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <TrendingUp size={20} />
+              <TrendingUp size={18} />
               <span>Lançar Vendas</span>
             </Link>
 
             <Link
               to="/products"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <BarChart3 size={20} />
+              <BarChart3 size={18} />
               <span>Produtos</span>
             </Link>
 
             <Link
               to="/canais-cobranca"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <CreditCard size={20} />
+              <CreditCard size={18} />
               <span>Canais de Cobrança</span>
             </Link>
 
             <Link
               to="/profile"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <User size={20} />
+              <User size={18} />
               <span>Meu Perfil</span>
             </Link>
 
             <Link
               to="/cadastrar-produtos"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Plus size={20} />
+              <Plus size={18} />
               <span>Cadastrar Produtos</span>
             </Link>
 
             <Link
               to="/relatorio"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <FileText size={20} />
+              <FileText size={18} />
               <span>Relatório de Vendas</span>
             </Link>
 
             <Link
               to="/controle-gratificacao"
-              className="flex items-center gap-3 px-4 py-3 text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-4 py-2 text-sm text-teal-900 hover:bg-teal-50 rounded-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Gift size={20} />
+              <Gift size={18} />
               <span>Controle de Gratificação</span>
             </Link>
 
@@ -134,18 +134,18 @@ export function Sidebar() {
               <>
                 <Link
                   to="/dashboard-admin"
-                  className="flex items-center gap-3 px-4 py-3 text-purple-900 hover:bg-purple-50 rounded-lg transition-colors border-l-4 border-purple-600 bg-purple-50"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-purple-900 hover:bg-purple-50 rounded-lg transition-colors border-l-4 border-purple-600 bg-purple-50"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Shield size={20} />
+                  <Shield size={18} />
                   <span>Dashboard Admin</span>
                 </Link>
                 <Link
                   to="/cadastrar-periodo"
-                  className="flex items-center gap-3 px-4 py-3 text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Plus size={20} />
+                  <Plus size={18} />
                   <span>Cadastrar Período</span>
                 </Link>
               </>
@@ -153,12 +153,12 @@ export function Sidebar() {
           </nav>
 
           {/* Logout */}
-          <div className="absolute bottom-6 left-6 right-6">
+          <div className="mt-4 pt-4 border-t border-teal-100 flex-shrink-0">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg transition-colors font-medium"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg transition-colors font-medium"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
               <span>Sair</span>
             </button>
           </div>

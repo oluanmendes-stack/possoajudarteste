@@ -15,6 +15,7 @@ export default function Dashboard() {
     currentUser,
     sales,
     donations,
+    products,
     recordSale,
     recordDonation,
     updateUser,
@@ -33,7 +34,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (
       currentUser &&
-      currentUser.metaAtingida >= currentUser.meta &&
+      (currentUser.metaAtingida ?? 0) >= (currentUser.meta ?? 100) &&
       !goalReached
     ) {
       setGoalReached(true);
@@ -51,6 +52,11 @@ export default function Dashboard() {
   const totalDonations = donations
     .filter((d) => d.userId === currentUser.id)
     .length;
+
+  // Ensure values are valid numbers
+  const metaAtingida = currentUser.metaAtingida ?? 0;
+  const meta = currentUser.meta ?? 100;
+  const progressPercentage = meta > 0 ? ((metaAtingida + totalDonations) / meta) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100">
@@ -131,13 +137,13 @@ export default function Dashboard() {
             <div className="p-4 bg-green-50 rounded-lg">
               <p className="text-sm text-green-600 mb-1">Meta Atingida (com doações)</p>
               <p className="text-3xl font-bold text-green-900">
-                {currentUser.metaAtingida + totalDonations}
+                {metaAtingida + totalDonations}
               </p>
             </div>
             <div className="p-4 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-600 mb-1">Meta Total</p>
               <p className="text-3xl font-bold text-blue-900">
-                {currentUser.meta}
+                {meta}
               </p>
             </div>
           </div>
@@ -149,9 +155,7 @@ export default function Dashboard() {
                 Progresso para Meta (com doações)
               </p>
               <p className="text-sm font-medium text-teal-600">
-                {Math.round(
-                  ((currentUser.metaAtingida + totalDonations) / currentUser.meta) * 100,
-                )}
+                {Math.round(progressPercentage)}
                 %
               </p>
             </div>
@@ -159,10 +163,7 @@ export default function Dashboard() {
               <div
                 className="bg-gradient-to-r from-teal-500 to-teal-600 h-4 rounded-full transition-all duration-300"
                 style={{
-                  width: `${Math.min(
-                    ((currentUser.metaAtingida + totalDonations) / currentUser.meta) * 100,
-                    100,
-                  )}%`,
+                  width: `${Math.min(progressPercentage, 100)}%`,
                 }}
               />
             </div>

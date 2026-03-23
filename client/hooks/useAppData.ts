@@ -83,6 +83,19 @@ const STORAGE_KEYS = {
   PERIODOS: "posso_ajudar_periodos",
 };
 
+// Função helper para mapear dados do Supabase para a interface User
+const mapSupabaseUserToUser = (data: any): User => {
+  return {
+    ...data,
+    is_admin: data.eh_admin || false,
+  };
+};
+
+// Função helper para mapear array de usuários
+const mapSupabaseUsersToUsers = (data: any[]): User[] => {
+  return data.map(mapSupabaseUserToUser);
+};
+
 export function useAppData() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -128,13 +141,14 @@ export function useAppData() {
           // Buscar usuários
           try {
             const { data: usuariosData, error: usuariosError } = await supabase
-              .from('users')
+              .from('usuarios')
               .select('*')
               .order('nomeCompleto', { ascending: true });
 
             if (!usuariosError && usuariosData && usuariosData.length > 0) {
-              setUsers(usuariosData as User[]);
-              localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosData));
+              const usuariosMapeados = mapSupabaseUsersToUsers(usuariosData);
+              setUsers(usuariosMapeados);
+              localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(usuariosMapeados));
             }
           } catch (erro) {
             console.warn('Aviso ao buscar usuários:', erro);
@@ -229,7 +243,7 @@ export function useAppData() {
       // Tentar Supabase primeiro
       try {
         const { data: usuariosData, error } = await supabase
-          .from('users')
+          .from('usuarios')
           .select('*')
           .eq('matricula', matricula);
 
@@ -239,16 +253,16 @@ export function useAppData() {
           return { success: false, error: 'Matrícula não encontrada' };
         }
 
-        const usuario = usuariosData[0];
+        const usuarioMapeado = mapSupabaseUserToUser(usuariosData[0]);
 
         // Validar senha: deve ser 11 dígitos correspondendo ao CPF
-        const cpfSemCaracteres = usuario.cpf.replace(/\D/g, '');
+        const cpfSemCaracteres = usuarioMapeado.cpf.replace(/\D/g, '');
         if (senha !== cpfSemCaracteres) {
           return { success: false, error: 'Senha inválida' };
         }
 
-        setCurrentUser(usuario);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(usuario));
+        setCurrentUser(usuarioMapeado);
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(usuarioMapeado));
         return { success: true, error: null };
       } catch (supabaseError) {
         // Fallback: buscar do localStorage
@@ -316,12 +330,12 @@ export function useAppData() {
       if (dadosUsuario.numeroCorporativo) insertData.numeroCorporativo = dadosUsuario.numeroCorporativo;
       if (dadosUsuario.ramal) insertData.ramal = dadosUsuario.ramal;
       if (dadosUsuario.foto) insertData.foto = dadosUsuario.foto;
-      if (dadosUsuario.is_admin) insertData.is_admin = dadosUsuario.is_admin;
+      if (dadosUsuario.is_admin) insertData.eh_admin = dadosUsuario.is_admin;
 
       // Tentar salvar no Supabase, mas não falhar se não conseguir
       try {
         await supabase
-          .from('users')
+          .from('usuarios')
           .insert([insertData]);
       } catch (supabaseError) {
         // Continuar mesmo se Supabase falhar - usar localStorage
@@ -358,7 +372,7 @@ export function useAppData() {
   const updateUser = async (usuarioAtualizado: User) => {
     try {
       const { error } = await supabase
-        .from('users')
+        .from('usuarios')
         .update({
           apelido: usuarioAtualizado.apelido,
           emailPessoal: usuarioAtualizado.emailPessoal,
@@ -367,7 +381,7 @@ export function useAppData() {
           foto: usuarioAtualizado.foto,
           meta: usuarioAtualizado.meta,
           metaAtingida: usuarioAtualizado.metaAtingida,
-          is_admin: usuarioAtualizado.is_admin || false,
+          eh_admin: usuarioAtualizado.is_admin || false,
           updatedAt: new Date().toISOString(),
         })
         .eq('id', usuarioAtualizado.id);
@@ -401,9 +415,9 @@ export function useAppData() {
       };
 
       const { error } = await supabase
-        .from('users')
+        .from('usuarios')
         .update({
-          is_admin: true,
+          eh_admin: true,
           updatedAt: new Date().toISOString(),
         })
         .eq('id', currentUser.id);

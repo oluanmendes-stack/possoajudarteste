@@ -67,7 +67,7 @@ class Database {
 
   async getAllUsers(): Promise<User[]> {
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .select("*")
       .order("nomeCompleto", { ascending: true });
 
@@ -77,7 +77,7 @@ class Database {
 
   async getUserById(id: string): Promise<User | null> {
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .select("*")
       .eq("id", id)
       .single();
@@ -88,7 +88,7 @@ class Database {
 
   async getUserByMatricula(matricula: string): Promise<User | null> {
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .select("*")
       .eq("matricula", matricula)
       .single();
@@ -99,7 +99,7 @@ class Database {
 
   async getUserByCpf(cpf: string): Promise<User | null> {
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .select("*")
       .eq("cpf", cpf)
       .single();
@@ -111,7 +111,7 @@ class Database {
   async createUser(user: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
     const now = new Date().toISOString();
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .insert([
         {
           ...user,
@@ -128,7 +128,7 @@ class Database {
 
   async updateUser(id: string, updates: Partial<Omit<User, "id" | "createdAt">>): Promise<User | null> {
     const { data, error } = await supabase
-      .from("users")
+      .from("usuarios")
       .update({
         ...updates,
         updatedAt: new Date().toISOString(),
